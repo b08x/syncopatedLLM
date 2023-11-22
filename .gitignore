@@ -8,3 +8,6 @@
 /tmp/
 
 .env
+log/
+.tool-versions
+*.dbm
