@@ -1,16 +1,15 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'net/http'
-require 'json'
-
+require "net/http"
+require "json"
 
 HEADERS = {
   "Content-Type" => "application/json",
   "Authorization" => "Bearer #{ENV["HUGGINGFACE_API_KEY"]}"
 }
 
-#API_URL = "https://api-inference.huggingface.co/models/superb/hubert-large-superb-er"
+# API_URL = "https://api-inference.huggingface.co/models/superb/hubert-large-superb-er"
 # API_URL = "https://api-inference.huggingface.co/models/MIT/ast-finetuned-audioset-10-10-0.4593"
 
 # genre classification
@@ -22,7 +21,7 @@ def query(filename)
 
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
-  request = Net::HTTP::Post.new(uri.path, {'Content-Type' => 'application/octet-stream'})
+  request = Net::HTTP::Post.new(uri.path, { "Content-Type" => "application/octet-stream" })
 
   # Add headers from the HEADERS variable
   HEADERS.each { |key, value| request[key] = value }

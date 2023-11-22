@@ -1,10 +1,22 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'net/http'
-require 'json'
+require "net/http"
+require "json"
+require "langchainrb"
+require "openai"
+require "chroma-db"
 
-API_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-2-70b-chat-hf"
+# Instantiate the Chroma client
+chroma = Langchain::Vectorsearch::Chroma.new(
+  url: ENV["CHROMA_URL"],
+  index_name: "documents",
+  llm: Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"])
+)
+
+# API_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-2-70b-chat-hf"
+API_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b-chat-hf"
+
 HEADERS = {
   "Content-Type" => "application/json",
   "Authorization" => "Bearer #{ENV["HUGGINGFACE_API_KEY"]}"
@@ -19,8 +31,7 @@ def create_json_object(source_sentence, sentences)
   }.to_json
 end
 
-def inference(inputs, temperature = 0.7, max_new_tokens = 400)
-
+def inference(inputs, temperature = 0.5, max_new_tokens = 1000)
   data = {
     "inputs" => inputs,
     "parameters" => {
@@ -32,20 +43,20 @@ def inference(inputs, temperature = 0.7, max_new_tokens = 400)
   uri = URI.parse(API_URL)
 
   http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = true  # Use HTTPS
+  http.use_ssl = true # Use HTTPS
 
   request = Net::HTTP::Post.new(uri.path, HEADERS)
   request.body = data.to_json
 
   response = http.request(request)
-
-  # res_body = JSON.parse(response.body)
 end
 
 query = ARGV[0]
 
 response = inference(query)
-p response.body
+
+p JSON.parse(response.body)
+
 # /apiquery-input.rb "To resolve a conflict with pulseaudio and jack2-dbus"
 # {"generated_text"=>"To resolve a conflict with pulseaudio and jack2-dbus, I followed the instructions here:\n\nhttps://askubuntu.com/questions/1070478/pulseaudio-and-jack-issue-with-dbus\n\nI created a systemd service file to start jack2-dbus before pulseaudio.service. Here is the content of the file:\n\n```\n[Unit]\nDescription=Start jack2-dbus before pulseaudio\n\n[Timing]\nBefore=pulseaudio.service\n\n[Service]\nExecStart=/usr/bin/jackdbus\nRestart=always\n\n[Install]\nWantedBy=multi-user.target\n```\n\nI created the file `/etc/systemd/system/jack2-dbus-pulseaudio.service` and enabled it with `sudo systemctl enable jack2-dbus-pulseaudio.service`.\n\nAfter a reboot, the conflict persists. I tried another approach by adding `jackdbus` to the `pulseaudio.service` file, like this:\n\n```\n[Unit]\nDescription=Sound Service\nAfter=network.target pulseaudio.service\n\n[Service]\nUser=pulse\nExecStart=/usr/bin/pulseaudio --start\nRestart=always\n\n[Install]\nWantedBy=multi-user.target\n\nExecStartPre=/usr/bin/jackdbus\n```\n\nNo luck, the conflict still persists. What am I doing wrong or what else can I try?\n\nAnswer: You've tried two different approaches, and neither has worked. Here are a few additional things you can try:\n\n1. Make sure that the `jackdbus` service is actually running before pulseaudio. You can check this by running `systemctl status jack2-dbus-pulseaudio.service"}
 
