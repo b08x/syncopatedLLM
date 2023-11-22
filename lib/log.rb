@@ -2,53 +2,40 @@
 # frozen_string_literal: true
 
 module Logging
-	module_function
+  module_function
 
-	require 'logger'
+  require "logger"
+
+  LOG_DIR = File.join(File.expand_path("..", __dir__), "log")
+  LOG_LEVEL = Logger::DEBUG
+  LOG_MAX_SIZE = 6_145_728
+  LOG_MAX_FILES = 10
 
   @loggers = {}
 
   def logger
-
     classname = self.class.name
     methodname = caller[0][/`([^']*)'/, 1]
     @logger ||= Logging.logger_for(classname, methodname)
     @logger.progname = "#{classname}\##{methodname}"
     @logger
-
   end
 
   class << self
-
-    def get_log_level
-
-      test = Logger::DEBUG
-      test
-
+    def log_level
+      Logger::DEBUG
     end
 
     def logger_for(classname, methodname)
-
       @loggers[classname] ||= configure_logger_for(classname, methodname)
-
     end
 
-    def configure_logger_for(classname, methodname)
-
-      current_date = Time.now.strftime('%Y-%m-%d')
+    def configure_logger_for(_classname, _methodname)
+      current_date = Time.now.strftime("%Y-%m-%d")
       log_file = File.join(LOG_DIR, "laudllm-#{current_date}.log")
       logger = Logger.new(log_file, LOG_MAX_FILES, LOG_MAX_SIZE)
-      logger.level = get_log_level
+      logger.level = log_level
       logger
-
     end
-
   end
-
 end
-
-
-LOG_DIR = File.join(File.expand_path("../", __FILE__), "log")
-LOG_LEVEL = Logger::DEBUG
-LOG_MAX_SIZE = 6145728
-LOG_MAX_FILES = 10
