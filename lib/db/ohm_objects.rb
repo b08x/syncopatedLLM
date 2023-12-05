@@ -21,8 +21,11 @@ end
 
 class Document < Ohm::Model
   include Logging
+
+  extend Dry::Monads[:maybe]
+
   include Ohm::Callbacks
-  include Ohm::Scope
+  # include Ohm::Scope
 
   attribute :path
   attribute :name
@@ -44,14 +47,18 @@ class Document < Ohm::Model
   index :path
   index :processed
 
-  scope do
-    def pending
-      find(processed: "false")
-    end
+  # scope do
+  #   def pending
+  #     find(processed: "false")
+  #   end
+  # end
+
+  def self.call(path:)
+    result = find_document(path)
   end
 
-  def before_create
-    self.processed = "false"
+  def self.find_document(path)
+    Maybe(Document.find(path: path).first).to_result(:document_not_found)
   end
 
   def extract_text(path, type)
@@ -65,8 +72,7 @@ class Document < Ohm::Model
         #TODO: this will sometimes return a TrueClass
         # will need to refresh on langchainrb
         #Langchain::Loader.load(path).value
-        logger.debug("placeholder message for Langchain::Loader function")
-        p path
+        logger.warn("placeholder message for Langchain::Loader function")
       rescue Langchain::Loader::UnknownFormatError => e
         logger.warn("#{e.message}")
       end
@@ -74,11 +80,15 @@ class Document < Ohm::Model
     end
   end
 
+  def before_create
+    self.processed = "false"
+  end
+
   def processed!
-    # Perform document processing here
     self.processed = "true"
     save
   end
+
 end
 
 class Chunk < Ohm::Model

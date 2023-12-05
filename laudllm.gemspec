@@ -45,6 +45,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "composable_operations"
   spec.add_dependency "dotenv"
   spec.add_dependency "drydock"
+  spec.add_dependency "dry-monads"
   spec.add_dependency "engtagger"
   spec.add_dependency "google_palm_api"
   spec.add_dependency "highline"
