@@ -14,8 +14,8 @@ class Documents < Sequel::Model
   many_to_many :chunks
 end
 
-class Websites < Sequel::Model
-end
+# class Websites < Sequel::Model
+# end
 
 class Chunks < Sequel::Model
   many_to_one :document

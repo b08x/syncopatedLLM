@@ -1,0 +1,1 @@
+{"_type":"prompt","input_variables":["task_name","expert_identity","text"],"template":"{expert_identity}\nTask: {task_name}\nGenerate a response:\n{text}"}

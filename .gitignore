@@ -11,3 +11,4 @@
 log/
 .tool-versions
 *.dbm
+Gemfile.lock
