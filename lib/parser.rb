@@ -16,12 +16,13 @@ class AnsibleParser
       metadata[:module] = task_data.keys.find { |key| key != 'name' && key != 'tags' }
       metadata[:module_args] = task_data[metadata[:module]] if metadata[:module]
 
-      metadata[:with_items] = task_data['with_items'] if task_data['with_items']
-
       # Handle blocks (nested tasks)
       if task_data['block']
         metadata[:block_tasks] = parse(task_data['block'].to_yaml)
       end
+
+      metadata[:with_items] = task_data['with_items'] if task_data['with_items']
+      metadata[:when] = task_data['when'] if task_data['when']
 
       [task_data, metadata]
     end
@@ -43,7 +44,11 @@ parsed_tasks.each do |task_data, metadata|
   puts "Module: #{metadata[:module]}"
   puts "Module arguments: #{metadata[:module_args]}"
   puts "With Items: #{metadata[:with_items]}" if metadata[:with_items]
+  puts "When: #{metadata[:when]}" if metadata[:when]
   puts "\n\n"
   puts "-------------------------------------------"
   # Access other metadata and block_tasks as needed
 end
+
+#TODO: when parsing a playbook, construct a prompt template to assess tasks based on the criteria outlined in this repository: https://github.com/IndikaKuma/ISTGrayIAC
+# reference: the do's and don'ts of IaC.pdf

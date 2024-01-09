@@ -12,3 +12,6 @@ log/
 .tool-versions
 *.dbm
 Gemfile.lock
+postgres/
+redis/
+chromadb/

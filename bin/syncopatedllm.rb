@@ -29,12 +29,14 @@ require "langchainrb"
 require "google_palm_api"
 require "cohere"
 
+require 'fileutils'
+require "pdf_paradise"
 require "extract"
 
 #
 # <Description>
 #
-module Laudllm
+module SyncopatedLLM
   include Logging
 
   #
@@ -79,60 +81,37 @@ module Laudllm
   class Import
     include Logging
 
-    def initialize
-      files = []
+    attr_accessor :file, :content
 
-      ARGV.each do |source|
-        if File.directory?(source)
-          files = Glob.documents(source)
-        elsif File.file?(source)
-          puts "its a file"
-          files << source
-        else
-          logger.fatal "#{source} is neither a file nor directory, exiting"
+    def initialize(path)
+      @file = SyncopatedLLM::Item.new(path)
+      extract
+    end
+
+    def extract
+      case @file.type
+      when "application/pdf"
+        path = Pathname.new(@file.path)
+        FileUtils.copy_file @file.path, "/tmp/testing/#{@file.name}.pdf"
+        Dir.chdir("/tmp/testing") do
+          PdfParadise.burst("'/tmp/testing/#{@file.name.shellescape}.pdf'")
         end
-      end
-
-      files.map! { |path| Laudllm::Item.new(path) }
-
-      total_files = files.count
-
-      Parallel.map(files, progress: "Adding #{total_files} Files to Database", in_processes: 4) do |file|
-        begin
-          if !Document.find(path: file.path).first.nil? && Document.find(path: file.path).first
-            unless Document.find(path: file.path).first.processed == "false"
-              logger.info("#{file.path} already exists, skipping import")
-              next
-            end
-          end
-        rescue ArgumentError => e
-          logger.info("#{file} #{e.message}")
-        end
-
-        begin
-          doc = Document.create(
-            path: file.path,
-            name: file.name,
-            type: file.type
-          )
-
-          doc.save
-
-          logger.debug "added #{file.path}"
-        rescue Ohm::UniqueIndexViolation => e
-          logger.warn "<#{file.path}> already exists in database\n#{e.message}"
-        end
+        #@content = PDF2Text.new(@file.path).text
+        #p @content
+      else
+        p @file.type
       end
     end
-  end #end import class
-end #end laudllm module
 
-THEME = Laudllm::Colors.set("default")
+  end #end import class
+end #end SyncopatedLLM module
+
+THEME = SyncopatedLLM::Colors.set("default")
 
 SUB_COMMANDS = %w[import log].freeze
 
 global_opts = Optimist.options do
-  banner "laudllm document processing utility"
+  banner "SyncopatedLLM document processing utility"
   opt :dry_run, "Don't actually do anything", short: "-n"
   stop_on SUB_COMMANDS
 end
@@ -159,6 +138,11 @@ unless cmd.nil?
   puts "Subcommand options: #{cmd_opts.inspect}"
   puts "File Path(s): #{ARGV.inspect}"
 
-  Laudllm::Import.new unless ARGV.empty?
+  path = Pathname.new(ARGV[0])
+
+  p path.cleanpath.to_s
+  
+  
+  SyncopatedLLM::Import.new(path.cleanpath.to_s) unless ARGV.empty?
 
 end

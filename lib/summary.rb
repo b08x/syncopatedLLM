@@ -3,6 +3,7 @@
 
 require "openai"
 require "google_palm_api"
+require "cohere"
 require "langchainrb"
 
 # Function to generate a prompt template for summarizing text
@@ -11,7 +12,6 @@ def generate_summarization_prompt_template(max_tokens)
     template: "Summarize the following text in #{max_tokens} tokens or less:\n{text}",
     input_variables: ["text"]
   )
-
 end
 
 # Function to save the prompt template to a file
@@ -56,18 +56,18 @@ OPENAI = Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"], default_opti
   dimension: 1536
 })
 
-COHERE = Langchain::LLM::Cohere.new(api_key: ENV["COHERE_API_KEY"], default_options: {
-  temperature: 0.0,
-  completion_model_name: "command",
-  embeddings_model_name: "small",
-  dimension: 1024,
-  truncate: "START"
-})
+# COHERE = Langchain::LLM::Cohere.new(api_key: ENV["COHERE_API_KEY"], default_options: {
+#   temperature: 0.0,
+#   completion_model_name: "command",
+#   embeddings_model_name: "small",
+#   dimension: 1024,
+#   truncate: "START"
+# })
 
 
 text = "The tree-of-thoughts framework looks to address these issues in reasoning for more complex problems by essentially branching out every thought generation into multiple possibilities. The strongest thought or step is chosen at every level in the thought tree and executed accordingly. Since we're dealing with a tree structure, there can be many search techniques used to find the most desired path, however, it seems like Breadth First Search is the simpler and most like the way humans would tackle the execution of a task."
 
-summary = generate_summary(text, prompt_template, llm)
+summary = generate_summary(text, prompt_template, PALM)
 
-puts summary
+puts summary.raw_response
 # "The internet originated in the 1960s as a US military network called ARPANET. In the 1970s, the TCP/IP protocol enabled different networks to connect, forming the modern internet."

@@ -12,6 +12,7 @@ require "securerandom"
 require "ohm"
 require "ohm/contrib"
 
+include Logging
 
 begin
   Ohm.redis = Redic.new(ENV["REDIS"])
