@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../../Archive/ansible_stuff"
+		},
+		{
+			"path": "../../Archive/laudllm-archive"
+		}
+	],
+	"settings": {}
+}

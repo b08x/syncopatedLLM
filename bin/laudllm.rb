@@ -22,7 +22,7 @@ require "dry/monads"
 
 require "database"
 require "db/ohm_objects"
-require "db/pg_objects"
+# require "db/pg_objects"
 
 require "openai"
 require "langchainrb"
@@ -30,8 +30,8 @@ require "google_palm_api"
 require "cohere"
 
 require "extract"
-
-#
+# require "summary"
+require "apiquery-input"
 # <Description>
 #
 module Laudllm

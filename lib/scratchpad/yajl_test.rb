@@ -2,13 +2,14 @@
 # frozen_string_literal: true
 
 require "net/http"
-require "json"
+require 'yajl'
+require 'stringio'
 require "langchainrb"
 require "openai"
 require "chroma-db"
 require "httparty"
 
-
+@parser = Yajl::Parser.new(symbolize_keys: true)
 
 # Instantiate the Chroma client
 chroma = Langchain::Vectorsearch::Chroma.new(
@@ -38,7 +39,7 @@ def create_json_object(source_sentence, sentences)
 end
 
 
-def inference(text, temperature = 0.5, max_new_tokens = 512)
+def inference(text, temperature = 0.5, max_new_tokens = 1000)
   data = {
     "inputs" => text,
     "parameters" => {
@@ -59,18 +60,17 @@ def inference(text, temperature = 0.5, max_new_tokens = 512)
   response = http.request(request)
   
   
-  # Handle the response as needed
-  JSON.parse(response.body)
+  hash = Yajl::Parser.parse(response.body)
 end
 
-query = "We consult the popular Large Language Model interfaces of the day to help better understand the process through practical example. We apply this syntactic sugar to the 'text chunking' stage of the NLP pipeline to help "
+query = "Maintain a 'memory' of recent segments to preserve context across segment boundaries. For dependent clauses, keep them in the same segment as the main clause." 
 
 
 response = inference(query)
 
 p response
 
-# [{"generated_text"=>"Maintain a 'memory' of recent segments to preserve context across segment boundaries. For dependent clauses, keep them in the same segment as the main clause.\n\n## Examples\n\n### Good\n\n- This is a good example of a good example.\n- This is a good example of a good example.\n\n### Bad\n\n- This is a good example of a good example.\n- This is a good example of a good example.\n\n## Background\n\n### Memory\n\nA memory is a segment that has been 'saved' by the writer so that it can be referred to later in the text. For example, a memory can be used to introduce a new paragraph (e.g. in a scientific paper) or to introduce a new idea (e.g. in a philosophy paper). The memory is usually marked by a phrase such as 'as discussed earlier' or 'as mentioned in the introduction'.\n\n### Dependent clauses\n\nA dependent clause is a clause that is not a complete sentence by itself. Dependent clauses are often found in relative clauses and in subordinate clauses.\n\n## Relevance\n\n### Memory\n\nA memory is a useful technique for writers because it allows them to maintain context across segment boundaries. This is particularly useful in long documents where it is easy to lose track of what has been said previously.\n\n### Dependent clauses\n\nDependent clauses are important because they can help to improve the flow of a text. By keeping dependent clauses in the same segment as the main clause, the writer can avoid having to repeat information. This can make the text more concise and easier to read.\n\n## Exceptions\n\n### Memory\n\nThere are no exceptions to this rule.\n\n### Dependent clauses\n\nThere are no exceptions to this rule.\n\n## Tips\n\n### Memory\n\nWhen using a memory, make sure that it is clear what the memory is referring to. This can be done by using a phrase such as 'as discussed earlier' or 'as mentioned in the introduction'.\n\n### Dependent clauses\n\nWhen using dependent clauses, make sure that they are grammatically correct. This can be done by checking that the dependent clause is in the correct form (e.g. past tense) and that it agrees with the main clause (e.g. subject-verb agreement)."}]
+
 
 # /apiquery-input.rb "To resolve a conflict with pulseaudio and jack2-dbus"
 # {"generated_text"=>"To resolve a conflict with pulseaudio and jack2-dbus, I followed the instructions here:\n\nhttps://askubuntu.com/questions/1070478/pulseaudio-and-jack-issue-with-dbus\n\nI created a systemd service file to start jack2-dbus before pulseaudio.service. Here is the content of the file:\n\n```\n[Unit]\nDescription=Start jack2-dbus before pulseaudio\n\n[Timing]\nBefore=pulseaudio.service\n\n[Service]\nExecStart=/usr/bin/jackdbus\nRestart=always\n\n[Install]\nWantedBy=multi-user.target\n```\n\nI created the file `/etc/systemd/system/jack2-dbus-pulseaudio.service` and enabled it with `sudo systemctl enable jack2-dbus-pulseaudio.service`.\n\nAfter a reboot, the conflict persists. I tried another approach by adding `jackdbus` to the `pulseaudio.service` file, like this:\n\n```\n[Unit]\nDescription=Sound Service\nAfter=network.target pulseaudio.service\n\n[Service]\nUser=pulse\nExecStart=/usr/bin/pulseaudio --start\nRestart=always\n\n[Install]\nWantedBy=multi-user.target\n\nExecStartPre=/usr/bin/jackdbus\n```\n\nNo luck, the conflict still persists. What am I doing wrong or what else can I try?\n\nAnswer: You've tried two different approaches, and neither has worked. Here are a few additional things you can try:\n\n1. Make sure that the `jackdbus` service is actually running before pulseaudio. You can check this by running `systemctl status jack2-dbus-pulseaudio.service"}

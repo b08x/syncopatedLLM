@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require "stream_lines"
 require "net/http"
 require "json"
 
@@ -13,7 +14,13 @@ HEADERS = {
 # API_URL = "https://api-inference.huggingface.co/models/MIT/ast-finetuned-audioset-10-10-0.4593"
 
 # genre classification
-API_URL = "https://api-inference.huggingface.co/models/sanchit-gandhi/distilhubert-finetuned-gtzan"
+# API_URL = "https://api-inference.huggingface.co/models/sanchit-gandhi/distilhubert-finetuned-gtzan"
+
+API_URL = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
+
+def sanitize(input)
+  Shellwords.escape(input)
+end
 
 def query(filename)
   data = File.binread(filename)
@@ -33,8 +40,9 @@ def query(filename)
   JSON.parse(response.body)
 end
 
-data = query("/mnt/bender/backup/Library/sounds/fx/bbc_radio/ebu-norm/temp.ogg")
+data = query("/home/b08x/Recordings/audio/dictations/jack_capture_08.wav")
 
-p data
+p data["text"]
+
 
 # [{"score"=>0.4463595449924469, "label"=>"Music"}, {"score"=>0.11388605087995529, "label"=>"Smash, crash"}, {"score"=>0.05403658375144005, "label"=>"Speech"}, {"score"=>0.04698070138692856, "label"=>"Thump, thud"}, {"score"=>0.02980891801416874, "label"=>"Chink, clink"}]

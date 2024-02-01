@@ -24,7 +24,7 @@ class WordSenses < ComposableOperations::ComposedOperation
   end
 
   def execute
-    @origins = @lexicon.lookup_synsets(word)
+    @origins = @lexicon.lookup_synsets(word, :noun)
     hypernyms
   end
 end
