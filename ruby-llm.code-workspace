@@ -1,16 +1,13 @@
 {
 	"folders": [
 		{
-			"path": ".."
-		},
-		{
 			"path": "."
 		},
 		{
-			"path": "../../Archive/ansible_stuff"
+			"path": "../LLMOS/aoororachain"
 		},
 		{
-			"path": "../../Archive/laudllm-archive"
+			"path": "../LLMOS/monadic-chat"
 		}
 	],
 	"settings": {}

@@ -147,6 +147,8 @@ GEM
       stal
     ohm-contrib (3.0.0)
       ohm (~> 3.0)
+    ollama-ai (1.0.1)
+      faraday (~> 2.9)
     open-uri (0.4.1)
       stringio
       time
@@ -398,6 +400,7 @@ DEPENDENCIES
   nokogiri
   ohm
   ohm-contrib
+  ollama-ai
   open-uri
   open3
   open4
